@@ -7,6 +7,9 @@
 TARGET = message-merge
 TEMPLATE = app
 
+QT  += mobility
+MOBILITY    +=  contacts
+MOBILITY    +=  messages
 
 SOURCES += main.cpp\
         mainwindow.cpp
