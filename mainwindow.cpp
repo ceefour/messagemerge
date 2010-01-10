@@ -24,3 +24,15 @@ void MainWindow::changeEvent(QEvent *e)
         break;
     }
 }
+
+void MainWindow::on_editTemplatesBtn_clicked()
+{
+    MessageTemplate tpl("generic name", "contents");
+    templates.append(tpl);
+    ui->templatesCombo->clear();
+    QListIterator<MessageTemplate> i(templates);
+    while (i.hasNext()) {
+        MessageTemplate tpl = i.next();
+        ui->templatesCombo->addItem(tpl.name());
+    }
+}

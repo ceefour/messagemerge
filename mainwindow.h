@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QList>
+#include "messagetemplate.h"
 
 namespace Ui {
     class MainWindow;
@@ -18,6 +20,10 @@ protected:
 
 private:
     Ui::MainWindow *ui;
+    QList<MessageTemplate> templates;
+
+private slots:
+    void on_editTemplatesBtn_clicked();
 };
 
 #endif // MAINWINDOW_H
