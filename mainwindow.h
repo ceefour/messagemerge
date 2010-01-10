@@ -21,8 +21,11 @@ protected:
 private:
     Ui::MainWindow *ui;
     QList<MessageTemplate> templates;
+    void refreshTemplatesCombo();
 
 private slots:
+    void on_startPreviewBtn_clicked();
+    void on_previewBackBtn_clicked();
     void on_editTemplatesBtn_clicked();
 };
 
