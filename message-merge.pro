@@ -8,7 +8,13 @@ MOBILITY += contacts
 MOBILITY += messages
 SOURCES += main.cpp \
     mainwindow.cpp \
-    messagetemplate.cpp
+    messagetemplate.cpp \
+    templatesdialog.cpp \
+    templateeditdialog.cpp
 HEADERS += mainwindow.h \
-    messagetemplate.h
-FORMS += mainwindow.ui
+    messagetemplate.h \
+    templatesdialog.h \
+    templateeditdialog.h
+FORMS += mainwindow.ui \
+    templatesdialog.ui \
+    templateeditdialog.ui

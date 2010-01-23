@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QList>
+#include <QMap>
 #include "messagetemplate.h"
 
 namespace Ui {
@@ -20,10 +20,11 @@ protected:
 
 private:
     Ui::MainWindow *ui;
-    QList<MessageTemplate> templates;
-    void refreshTemplatesCombo();
+    QMap<QString, QString> templates;
 
 private slots:
+    void on_loadTemplateBtn_clicked();
+    void on_saveAsTemplateBtn_clicked();
     void on_startPreviewBtn_clicked();
     void on_previewBackBtn_clicked();
     void on_editTemplatesBtn_clicked();
