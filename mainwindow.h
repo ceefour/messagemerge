@@ -31,6 +31,7 @@ private:
     QList<QtMobility::QContact> selectedContacts();
 
 private slots:
+    void on_MainWindow_iconSizeChanged(QSize iconSize);
     void on_navStack_currentChanged(int );
     void on_loadTemplateBtn_clicked();
     void on_saveAsTemplateBtn_clicked();

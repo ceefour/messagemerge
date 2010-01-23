@@ -1,3 +1,4 @@
+/********* DEPRECATED ***************/
 #include "messagetemplate.h"
 
 MessageTemplate::MessageTemplate()

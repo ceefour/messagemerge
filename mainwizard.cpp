@@ -1,7 +1,5 @@
-/********* DEPRECATED ***************/
-
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include "mainwizard.h"
+#include "ui_mainwizard.h"
 #include <QMessageBox>
 #include <QInputDialog>
 #include "templatesdialog.h"
@@ -9,14 +7,18 @@
 #include <QErrorMessage>
 #include "qtcontacts.h"
 #include <QDebug>
+#include <QDir>
+#include "messagemerger.h"
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+MainWizard::MainWizard(QWidget *parent) :
+    QWizard(parent),
+    ui(new Ui::MainWizard)
 {
     ui->setupUi(this);
-    ui->navStack->setCurrentIndex(0);
-    // sample data
+
+    connect(this, SIGNAL(currentIdChanged(int)), SLOT(handle_currentIdChanged(int)));
+
+    // sample templates
     templates.insert("Weather news",
                      "Hello [[firstname]],\n\n"
                      "I'd like to let you know that weather in [[city]] is great!\n\n"
@@ -26,30 +28,44 @@ MainWindow::MainWindow(QWidget *parent) :
                      "Hi [[firstname]],\n\n"
                      "You have a new e-mail address: [[email]]\n\n"
                      "Good luck!");
+
+    // sample contacts
     QtMobility::QContact contact;
     QtMobility::QContactName name;
     name.setFirst("John");
     name.setLast("Smith");
     contact.saveDetail(&name);
+    QContactEmailAddress email;
+    email.setEmailAddress("john.smith@example.com");
+    contact.saveDetail(&email);
+    QContactAddress address;
+    address.setLocality("Medan");
+    contact.saveDetail(&address);
     contacts.append(contact);
     contact = QtMobility::QContact();
     name = QtMobility::QContactName();
     name.setFirst("Mary");
     name.setLast("Swanson");
     contact.saveDetail(&name);
+    email = QContactEmailAddress();
+    email.setEmailAddress("mary.swanson@example.com");
+    contact.saveDetail(&email);
+    address = QContactAddress();
+    address.setLocality("Bandung");
+    contact.saveDetail(&address);
     contacts.append(contact);
 
     refreshContactList();
 }
 
-MainWindow::~MainWindow()
+MainWizard::~MainWizard()
 {
     delete ui;
 }
 
-void MainWindow::changeEvent(QEvent *e)
+void MainWizard::changeEvent(QEvent *e)
 {
-    QMainWindow::changeEvent(e);
+    QWizard::changeEvent(e);
     switch (e->type()) {
     case QEvent::LanguageChange:
         ui->retranslateUi(this);
@@ -59,24 +75,14 @@ void MainWindow::changeEvent(QEvent *e)
     }
 }
 
-void MainWindow::on_editTemplatesBtn_clicked()
+void MainWizard::on_editTemplatesBtn_clicked()
 {
     TemplatesDialog templatesDlg(this, &templates);
     if (templatesDlg.exec() == QDialog::Accepted) {
     }
 }
 
-void MainWindow::on_previewBackBtn_clicked()
-{
-    ui->navStack->setCurrentWidget(ui->startPage);
-}
-
-void MainWindow::on_startPreviewBtn_clicked()
-{
-    ui->navStack->setCurrentWidget(ui->previewPage);
-}
-
-void MainWindow::on_saveAsTemplateBtn_clicked()
+void MainWizard::on_saveAsTemplateBtn_clicked()
 {
     TemplateEditDialog templateDlg(this);
     templateDlg.setWindowTitle("Save Template As");
@@ -91,7 +97,7 @@ void MainWindow::on_saveAsTemplateBtn_clicked()
     }
 }
 
-void MainWindow::on_loadTemplateBtn_clicked()
+void MainWizard::on_loadTemplateBtn_clicked()
 {
     QInputDialog loadTemplateDlg(this, Qt::Dialog);
     loadTemplateDlg.setWindowTitle("Load Template");
@@ -111,34 +117,23 @@ void MainWindow::on_loadTemplateBtn_clicked()
     }
 }
 
-QString MainWindow::templateBody() const {
+QString MainWizard::templateBody() const {
     return ui->templateEdit->toPlainText();
 }
 
-void MainWindow::refreshMessagePreview() {
+void MainWizard::refreshMessagePreview() {
     int index = ui->previewContactCombo->currentIndex();
     if (index >= 0 && index < contacts.length()) {
         QContact contact = ui->previewContactCombo->itemData(index, Qt::UserRole).value<QContact>();
-        QContactName contactName = contact.detail<QContactName>();
-        QString message = templateBody();
-        message = message.replace("[[name]]", contactName.first() + " " + contactName.last(), Qt::CaseSensitive);
-        message = message.replace("[[firstname]]", contactName.first(), Qt::CaseSensitive);
-        message = message.replace("[[lastname]]", contactName.last(), Qt::CaseSensitive);
+        MessageMerger merger;
+        QString message = merger.merge(templateBody(), contact);
         ui->messagePreviewEdit->setPlainText(message);
     } else {
         ui->messagePreviewEdit->setPlainText("(no contact selected)");
     }
 }
 
-void MainWindow::on_navStack_currentChanged(int )
-{
-    if (ui->navStack->currentWidget() == ui->previewPage) {
-        refreshContactCombo();
-        refreshMessagePreview();
-    }
-}
-
-void MainWindow::refreshContactList() {
+void MainWizard::refreshContactList() {
     ui->contactList->clear();
     for (int i = 0; i < contacts.length(); i++) {
         QContact contact = contacts[i];
@@ -146,11 +141,11 @@ void MainWindow::refreshContactList() {
         QListWidgetItem *item = new QListWidgetItem(contactName.first() + " " + contactName.last(),
                              ui->contactList);
         item->setData(Qt::UserRole, QVariant::fromValue(contact));
-        qDebug() << i + 1 << "Contact:" << contact.id().localId() << "Item:" << item->text();
+        qDebug() << i + 1 << ":" << item->text();
     }
 }
 
-void MainWindow::refreshContactCombo() {
+void MainWizard::refreshContactCombo() {
     ui->previewContactCombo->clear();
     QListIterator<QContact> i(selectedContacts());
     while (i.hasNext()) {
@@ -161,7 +156,7 @@ void MainWindow::refreshContactCombo() {
     }
 }
 
-QList<QContact> MainWindow::selectedContacts() {
+QList<QContact> MainWizard::selectedContacts() {
     QList<QContact> selectedContacts;
     QList<QListWidgetItem *> sel = ui->contactList->selectedItems();
     QListIterator<QListWidgetItem *> i(sel);
@@ -173,7 +168,55 @@ QList<QContact> MainWindow::selectedContacts() {
     return selectedContacts;
 }
 
-void MainWindow::on_MainWindow_iconSizeChanged(QSize iconSize)
+void MainWizard::handle_currentIdChanged(int id)
 {
+    qDebug() << "wizard ID changed" << id;
+    if (currentPage() == ui->previewPage) {
+        refreshContactCombo();
+        refreshMessagePreview();
+    } else if (currentPage() == ui->generatePage) {
 
+    } else if (currentPage() == ui->processingPage) {
+        if (ui->saveFilesRadio->isChecked())
+            processSaveFiles();
+    }
+}
+
+void MainWizard::processSaveFiles() {
+    QString targetDir = ui->folderEdit->text();
+    ui->processingLabel1->setText("Creating directory " + targetDir);
+    ui->processingLabel2->setText("");
+    update();
+    QDir dir(targetDir);
+    if (!dir.exists()) {
+        if (!dir.mkpath(targetDir)) {
+            QErrorMessage(this).showMessage("Error creating directory " + targetDir);
+            return;
+        }
+    }
+
+    ui->progressBar->setMaximum(selectedContacts().length());
+    ui->progressBar->setValue(0);
+    ui->processingLabel1->setText("Processing contacts");
+    update();
+    QListIterator<QContact> i(selectedContacts());
+    MessageMerger merger;
+    while (i.hasNext()) {
+        QContact contact = i.next();
+        QContactName contactName = contact.detail<QContactName>();
+        ui->processingLabel2->setText(contactName.first() + " " + contactName.last());
+        update();
+        QString message = merger.merge(templateBody(), contact);
+        QString fileName = targetDir + "/" + contactName.first() + "_" + contactName.last() + ".txt";
+        qDebug() << fileName << "Contact:" << contactName.first() + " " + contactName.last() << "Message:" << message;
+        QFile file(fileName);
+        if (file.open(QFile::WriteOnly)) {
+            file.write(message.toUtf8());
+            file.close();
+        } else
+            QErrorMessage(this).showMessage("Error writing file " + fileName);
+        ui->progressBar->setValue(ui->progressBar->value() + 1);
+    }
+    ui->processingLabel2->setText("");
+    update();
 }
