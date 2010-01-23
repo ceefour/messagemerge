@@ -3,9 +3,6 @@
 # -------------------------------------------------
 TARGET = message-merge
 TEMPLATE = app
-QT += mobility
-MOBILITY += contacts
-MOBILITY += messages
 SOURCES += main.cpp \
     mainwindow.cpp \
     messagetemplate.cpp \
@@ -18,3 +15,6 @@ HEADERS += mainwindow.h \
 FORMS += mainwindow.ui \
     templatesdialog.ui \
     templateeditdialog.ui
+CONFIG += mobility
+MOBILITY += contacts
+MOBILITY += messages
