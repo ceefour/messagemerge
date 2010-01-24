@@ -4,20 +4,15 @@
 TARGET = message-merge
 TEMPLATE = app
 SOURCES += main.cpp \
-    mainwindow.cpp \
-    messagetemplate.cpp \
     templatesdialog.cpp \
     templateeditdialog.cpp \
     mainwizard.cpp \
     messagemerger.cpp
-HEADERS += mainwindow.h \
-    messagetemplate.h \
-    templatesdialog.h \
+HEADERS += templatesdialog.h \
     templateeditdialog.h \
     mainwizard.h \
     messagemerger.h
-FORMS += mainwindow.ui \
-    templatesdialog.ui \
+FORMS += templatesdialog.ui \
     templateeditdialog.ui \
     mainwizard.ui
 CONFIG += mobility
