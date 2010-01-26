@@ -29,6 +29,9 @@
    <property name="title">
     <string>Template &amp; Contacts</string>
    </property>
+   <property name="subTitle">
+    <string>Compose message and select recipients.</string>
+   </property>
    <attribute name="pageId">
     <string notr="true">1</string>
    </attribute>
@@ -115,6 +118,9 @@
    <property name="title">
     <string>Preview Messages</string>
    </property>
+   <property name="subTitle">
+    <string>Ensure your messages look alright.</string>
+   </property>
    <attribute name="pageId">
     <string notr="true">2</string>
    </attribute>
@@ -147,6 +153,9 @@
   <widget class="QWizardPage" name="generatePage">
    <property name="title">
     <string>Generate</string>
+   </property>
+   <property name="subTitle">
+    <string>What to do with generated messages.</string>
    </property>
    <attribute name="pageId">
     <string notr="true">3</string>

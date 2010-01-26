@@ -5,6 +5,7 @@
 #include <QList>
 #include <QMap>
 #include <QContact>
+#include <QContactManager>
 
 QTM_USE_NAMESPACE
 Q_DECLARE_METATYPE(QContact)
@@ -19,6 +20,9 @@ public:
     MainWizard(QWidget *parent = 0);
     ~MainWizard();
     QString templateBody() const;
+    void setContactManager(QContactManager *contactManager);
+    void reloadTemplates();
+    void saveTemplates();
 
 protected:
     void changeEvent(QEvent *e);
@@ -28,6 +32,7 @@ private:
     QMap<QString, QString> templates;
     QList<QContact> contacts;
     QList<QContact> selectedContacts();
+    QContactManager *m_contactManager;
 
 private slots:
     void handle_currentIdChanged(int id);
@@ -38,6 +43,7 @@ private slots:
     void refreshContactList();
     void refreshContactCombo();
     void processSaveFiles();
+    void reloadContacts();
 };
 
 #endif // MAINWIZARD_H

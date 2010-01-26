@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QDir>
 #include "messagemerger.h"
+#include <QSettings>
 
 MainWizard::MainWizard(QWidget *parent) :
     QWizard(parent),
@@ -18,49 +19,118 @@ MainWizard::MainWizard(QWidget *parent) :
 
     connect(this, SIGNAL(currentIdChanged(int)), SLOT(handle_currentIdChanged(int)));
 
-    // sample templates
-    templates.insert("Weather news",
-                     "Hello [[firstname]],\n\n"
-                     "I'd like to let you know that weather in [[city]] is great!\n\n"
-                     "Best regards,\n"
-                     "Weather Control");
-    templates.insert("New e-mail notification",
-                     "Hi [[firstname]],\n\n"
-                     "You have a new e-mail address: [[email]]\n\n"
-                     "Good luck!");
+    QSettings settings("Soluvas", "MessageMerge", this);
 
-    // sample contacts
-    QtMobility::QContact contact;
-    QtMobility::QContactName name;
-    name.setFirst("John");
-    name.setLast("Smith");
-    contact.saveDetail(&name);
-    QContactEmailAddress email;
-    email.setEmailAddress("john.smith@example.com");
-    contact.saveDetail(&email);
-    QContactAddress address;
-    address.setLocality("Medan");
-    contact.saveDetail(&address);
-    contacts.append(contact);
-    contact = QtMobility::QContact();
-    name = QtMobility::QContactName();
-    name.setFirst("Mary");
-    name.setLast("Swanson");
-    contact.saveDetail(&name);
-    email = QContactEmailAddress();
-    email.setEmailAddress("mary.swanson@example.com");
-    contact.saveDetail(&email);
-    address = QContactAddress();
-    address.setLocality("Bandung");
-    contact.saveDetail(&address);
-    contacts.append(contact);
+    if (!settings.contains("templates/size")) {
+        qDebug() << "Generating sample templates.";
+        // sample templates
+        settings.beginWriteArray("templates");
+        settings.setArrayIndex(0);
+        settings.setValue("name", "Weather news");
+        settings.setValue("body", "Hello [[firstname]],\n\n"
+                          "I'd like to let you know that weather in [[city]] is great!\n\n"
+                          "Best regards,\n"
+                          "Weather Control");
+        settings.setArrayIndex(1);
+        settings.setValue("name", "New e-mail notification");
+        settings.setValue("body", "Hi [[firstname]],\n\n"
+                          "You have a new e-mail address: [[email]]\n\n"
+                          "Good luck!");
+        settings.endArray();
+    }
 
-    refreshContactList();
+    reloadTemplates();
+}
+
+void MainWizard::reloadTemplates() {
+    QSettings settings("Soluvas", "MessageMerge", this);
+    templates.clear();
+    int templateCount = settings.beginReadArray("templates");
+    for (int i = 0; i < templateCount; i++) {
+        settings.setArrayIndex(i);
+        templates.insert(settings.value("name").toString(), settings.value("body").toString());
+    }
+    settings.endArray();
+    qDebug() << "Loaded" << templateCount << "templates from settings.";
+}
+
+void MainWizard::saveTemplates() {
+    QSettings settings("Soluvas", "MessageMerge", this);
+    settings.beginWriteArray("templates");
+    QMapIterator<QString, QString> i(templates);
+    int idx = 0;
+    while (i.hasNext()) {
+        i.next();
+        settings.setArrayIndex(idx);
+        settings.setValue("name", i.key());
+        settings.setValue("body", i.value());
+        idx++;
+    }
+    settings.endArray();
+    qDebug() << "Saved" << idx << "templates to settings.";
 }
 
 MainWizard::~MainWizard()
 {
     delete ui;
+}
+
+void MainWizard::setContactManager(QContactManager *contactManager) {
+    m_contactManager = contactManager;
+    qDebug() << "Using manager:" << m_contactManager->managerName();
+    reloadContacts();
+}
+
+void MainWizard::reloadContacts() {
+    contacts.clear();
+    if (m_contactManager == NULL)
+        return;
+
+    if (m_contactManager->managerName() == "memory") {
+        qDebug() << "Using manager 'memory', adding sample contacts data.";
+        // sample contacts
+        QtMobility::QContact contact;
+        QtMobility::QContactName name;
+        name.setFirst("John");
+        name.setLast("Smith");
+        contact.saveDetail(&name);
+        QContactPhoneNumber phone;
+        phone.setNumber("+628123456789");
+        phone.setSubTypes(QContactPhoneNumber::SubTypeMobile);
+        contact.saveDetail(&phone);
+        QContactEmailAddress email;
+        email.setEmailAddress("john.smith@example.com");
+        contact.saveDetail(&email);
+        QContactAddress address;
+        address.setLocality("Medan");
+        contact.saveDetail(&address);
+        m_contactManager->saveContact(&contact);
+        contact = QtMobility::QContact();
+        name = QtMobility::QContactName();
+        name.setFirst("Mary");
+        name.setLast("Swanson");
+        contact.saveDetail(&name);
+        phone = QContactPhoneNumber();
+        phone.setNumber("+6285678912345");
+        phone.setSubTypes(QContactPhoneNumber::SubTypeMobile);
+        contact.saveDetail(&phone);
+        email = QContactEmailAddress();
+        email.setEmailAddress("mary.swanson@example.com");
+        contact.saveDetail(&email);
+        address = QContactAddress();
+        address.setLocality("Bandung");
+        contact.saveDetail(&address);
+        m_contactManager->saveContact(&contact);
+    }
+
+    QListIterator<QContactLocalId> i(m_contactManager->contacts());
+    while (i.hasNext()) {
+        QContactLocalId contactId = i.next();
+        QContact contact = m_contactManager->contact(contactId);
+        contacts.append(contact);
+    }
+
+    refreshContactList();
 }
 
 void MainWizard::changeEvent(QEvent *e)
@@ -79,6 +149,7 @@ void MainWizard::on_editTemplatesBtn_clicked()
 {
     TemplatesDialog templatesDlg(this, &templates);
     if (templatesDlg.exec() == QDialog::Accepted) {
+        saveTemplates();
     }
 }
 
@@ -91,6 +162,7 @@ void MainWizard::on_saveAsTemplateBtn_clicked()
         QString templateName = templateDlg.templateName();
         if (!templateName.isEmpty()) {
             templates.insert(templateName, templateDlg.templateBody());
+            saveTemplates();
         } else {
             QErrorMessage(this).showMessage("Template name must not be empty.");
         }
@@ -141,7 +213,7 @@ void MainWizard::refreshContactList() {
         QListWidgetItem *item = new QListWidgetItem(contactName.first() + " " + contactName.last(),
                              ui->contactList);
         item->setData(Qt::UserRole, QVariant::fromValue(contact));
-        qDebug() << i + 1 << ":" << item->text();
+        qDebug() << i + 1 << ":" << contact.localId() << ":" << item->text();
     }
 }
 
