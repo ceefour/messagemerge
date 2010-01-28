@@ -9,18 +9,29 @@ QString MessageMerger::merge(QString const &templateBody, QContact contact) cons
     QContactName contactName = contact.detail<QContactName>();
     QString message = templateBody;
     message = message.replace("[[name]]",
-                              contactName.first() + " " + contactName.last(), Qt::CaseSensitive);
+                              fullName(contactName), Qt::CaseSensitive);
+    QString firstName = contactName.first().isEmpty() ? "" : contactName.first();
     message = message.replace("[[firstname]]",
-                              contactName.first(), Qt::CaseSensitive);
+                              firstName, Qt::CaseSensitive);
+    QString lastName = contactName.last().isEmpty() ? "" : contactName.last();
     message = message.replace("[[lastname]]",
-                              contactName.last(), Qt::CaseSensitive);
+                              lastName, Qt::CaseSensitive);
     QContactEmailAddress email = contact.detail<QContactEmailAddress>();
-    if (!email.isEmpty())
-        message = message.replace("[[email]]",
-                                  email.emailAddress(), Qt::CaseSensitive);
+    message = message.replace("[[email]]",
+                              email.isEmpty() ? "" : email.emailAddress(), Qt::CaseSensitive);
     QContactAddress address = contact.detail<QContactAddress>();
-    if (!address.isEmpty() && !address.locality().isEmpty())
-        message = message.replace("[[city]]",
-                                  address.locality(), Qt::CaseSensitive);
+    message = message.replace("[[city]]",
+                              !address.isEmpty() && !address.locality().isEmpty() ? address.locality() : "",
+                              Qt::CaseSensitive);
     return message;
+}
+
+QString MessageMerger::fullName(QContactName contactName) {
+    if (!contactName.first().isEmpty() && !contactName.last().isEmpty())
+        return contactName.first() + " " + contactName.last();
+    if (!contactName.first().isEmpty())
+        return contactName.first();
+    if (!contactName.last().isEmpty())
+        return contactName.last();
+    return "";
 }

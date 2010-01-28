@@ -11,6 +11,17 @@
 #include "messagemerger.h"
 #include <QSettings>
 
+// FIXME: Qt Mobility Messaging doesn't work for Symbian yet
+#if defined(Q_OS_SYMBIAN)
+// enable SMS on Symbian
+//#define SMS_ENABLED
+#endif
+
+#ifdef SMS_ENABLED
+#include <qmessage.h>
+#include <qmessageserviceaction.h>
+#endif
+
 MainWizard::MainWizard(QWidget *parent) :
     QWizard(parent),
     ui(new Ui::MainWizard)
@@ -18,6 +29,10 @@ MainWizard::MainWizard(QWidget *parent) :
     ui->setupUi(this);
 
     connect(this, SIGNAL(currentIdChanged(int)), SLOT(handle_currentIdChanged(int)));
+
+#ifdef SMS_ENABLED
+    ui->sendTextRadio->setEnabled(true);
+#endif
 
     QSettings settings("Soluvas", "MessageMerge", this);
 
@@ -78,7 +93,6 @@ MainWizard::~MainWizard()
 void MainWizard::setContactManager(QContactManager *contactManager) {
     m_contactManager = contactManager;
     qDebug() << "Using manager:" << m_contactManager->managerName();
-    reloadContacts();
 }
 
 void MainWizard::reloadContacts() {
@@ -86,8 +100,9 @@ void MainWizard::reloadContacts() {
     if (m_contactManager == NULL)
         return;
 
-    if (m_contactManager->managerName() == "memory") {
-        qDebug() << "Using manager 'memory', adding sample contacts data.";
+    int contactCount = m_contactManager->contacts().length();
+    if (m_contactManager->managerName() == "memory" && contactCount == 0) {
+        qDebug() << "Using manager 'memory' and empty, adding sample contacts data.";
         // sample contacts
         QtMobility::QContact contact;
         QtMobility::QContactName name;
@@ -123,12 +138,19 @@ void MainWizard::reloadContacts() {
         m_contactManager->saveContact(&contact);
     }
 
+    qDebug() << "Reading contacts...";
     QListIterator<QContactLocalId> i(m_contactManager->contacts());
+    int idx = 0;
     while (i.hasNext()) {
+        ui->contactsPage->setSubTitle("Reading contact #" + QString(idx + 1) + " of " + QString(contactCount));
+        update();
         QContactLocalId contactId = i.next();
         QContact contact = m_contactManager->contact(contactId);
         contacts.append(contact);
+        idx++;
     }
+    ui->contactsPage->setSubTitle("Select contacts to receive the message.");
+    qDebug() << "Contacts loaded.";
 
     refreshContactList();
 }
@@ -148,6 +170,9 @@ void MainWizard::changeEvent(QEvent *e)
 void MainWizard::on_editTemplatesBtn_clicked()
 {
     TemplatesDialog templatesDlg(this, &templates);
+#ifdef Q_OS_SYMBIAN
+    templatesDlg.setWindowState(Qt::WindowMaximized);
+#endif
     if (templatesDlg.exec() == QDialog::Accepted) {
         saveTemplates();
     }
@@ -158,6 +183,9 @@ void MainWizard::on_saveAsTemplateBtn_clicked()
     TemplateEditDialog templateDlg(this);
     templateDlg.setWindowTitle("Save Template As");
     templateDlg.setTemplateBody(ui->templateEdit->toPlainText());
+#ifdef Q_OS_SYMBIAN
+    templateDlg.setWindowState(Qt::WindowMaximized);
+#endif
     if (templateDlg.exec() == QDialog::Accepted) {
         QString templateName = templateDlg.templateName();
         if (!templateName.isEmpty()) {
@@ -209,8 +237,7 @@ void MainWizard::refreshContactList() {
     ui->contactList->clear();
     for (int i = 0; i < contacts.length(); i++) {
         QContact contact = contacts[i];
-        QContactName contactName = contact.detail<QContactName>();
-        QListWidgetItem *item = new QListWidgetItem(contactName.first() + " " + contactName.last(),
+        QListWidgetItem *item = new QListWidgetItem(contact.displayLabel(),
                              ui->contactList);
         item->setData(Qt::UserRole, QVariant::fromValue(contact));
         qDebug() << i + 1 << ":" << contact.localId() << ":" << item->text();
@@ -222,8 +249,7 @@ void MainWizard::refreshContactCombo() {
     QListIterator<QContact> i(selectedContacts());
     while (i.hasNext()) {
         QContact contact = i.next();
-        QContactName contactName = contact.detail<QContactName>();
-        ui->previewContactCombo->addItem(contactName.first() + " " + contactName.last(),
+        ui->previewContactCombo->addItem(contact.displayLabel(),
                                          QVariant::fromValue(contact));
     }
 }
@@ -243,7 +269,9 @@ QList<QContact> MainWizard::selectedContacts() {
 void MainWizard::handle_currentIdChanged(int id)
 {
     qDebug() << "wizard ID changed" << id;
-    if (currentPage() == ui->previewPage) {
+    if (currentPage() == ui->contactsPage) {
+        reloadContacts();
+    } else if (currentPage() == ui->previewPage) {
         refreshContactCombo();
         refreshMessagePreview();
     } else if (currentPage() == ui->generatePage) {
@@ -251,6 +279,10 @@ void MainWizard::handle_currentIdChanged(int id)
     } else if (currentPage() == ui->processingPage) {
         if (ui->saveFilesRadio->isChecked())
             processSaveFiles();
+        if (ui->sendTextRadio->isChecked())
+            processSendTextMessages();
+        if (ui->draftTextRadio->isChecked())
+            processDraftTextMessages();
     }
 }
 
@@ -271,16 +303,13 @@ void MainWizard::processSaveFiles() {
     ui->progressBar->setValue(0);
     ui->processingLabel1->setText("Processing contacts");
     update();
-    QListIterator<QContact> i(selectedContacts());
     MessageMerger merger;
-    while (i.hasNext()) {
-        QContact contact = i.next();
-        QContactName contactName = contact.detail<QContactName>();
-        ui->processingLabel2->setText(contactName.first() + " " + contactName.last());
+    foreach (const QContact& contact, selectedContacts()) {
+        ui->processingLabel2->setText(contact.displayLabel());
         update();
         QString message = merger.merge(templateBody(), contact);
-        QString fileName = targetDir + "/" + contactName.first() + "_" + contactName.last() + ".txt";
-        qDebug() << fileName << "Contact:" << contactName.first() + " " + contactName.last() << "Message:" << message;
+        QString fileName = targetDir + "/" + contact.displayLabel() + ".txt";
+        qDebug() << fileName << "Contact:" << contact.displayLabel() << "Message:" << message;
         QFile file(fileName);
         if (file.open(QFile::WriteOnly)) {
             file.write(message.toUtf8());
@@ -288,7 +317,69 @@ void MainWizard::processSaveFiles() {
         } else
             QErrorMessage(this).showMessage("Error writing file " + fileName);
         ui->progressBar->setValue(ui->progressBar->value() + 1);
+        update();
+    }
+    ui->processingLabel2->setText("");
+
+    next();
+}
+
+void MainWizard::processSendTextMessages() {
+#ifdef SMS_ENABLED
+    MessageMerger merger;
+    ui->progressBar->setMaximum(selectedContacts().length());
+    ui->progressBar->setValue(0);
+    ui->processingLabel1->setText("Sending text messages");
+    update();
+    foreach (const QContact &contact, selectedContacts()) {
+        ui->processingLabel2->setText(contact.displayLabel());
+        update();
+        QMessage message;
+        message.setType(QMessage::Sms);
+        QContactPhoneNumber phone = contact.detail<QContactPhoneNumber>();
+        message.setTo(QMessageAddress(phone.value(QContactPhoneNumber::SubTypeMobile), QMessageAddress::Phone));
+        QString body = merger.merge(templateBody(), contact);
+        message.setBody(body);
+        QMessageServiceAction service(this);
+        service.send(message);
+        ui->progressBar->setValue(ui->progressBar->value() + 1);
+        update();
     }
     ui->processingLabel2->setText("");
     update();
+    next();
+#endif
+}
+
+void MainWizard::processDraftTextMessages() {
+#ifdef SMS_ENABLED
+    // TODO: no API for save as draft
+//    QMessageStore *store = QMessageStore::instance();
+//    MessageMerger merger;
+//    ui->progressBar->setMaximum(selectedContacts().length());
+//    ui->progressBar->setValue(0);
+//    ui->processingLabel1->setText("Saving text messages as draft");
+//    update();
+//    foreach (const QContact &contact, selectedContacts()) {
+//        ui->processingLabel2->setText(contact.displayLabel());
+//        update();
+//        QMessage message;
+//        message.setType(QMessage::Sms);
+//        QContactPhoneNumber phone = contact.detail<QContactPhoneNumber>();
+//        message.setTo(QMessageAddress(phone.value(QContactPhoneNumber::SubTypeMobile), QMessageAddress::Phone));
+//        QString body = merger.merge(templateBody(), contact);
+//        message.setBody(body);
+//        message.setStatus();
+//        store->addMessage(m);
+//        ui->progressBar->setValue(ui->progressBar->value() + 1);
+//        update();
+//    }
+//    ui->processingLabel2->setText("");
+//    update();
+//    next();
+#endif
+}
+
+void MainWizard::setOutputDir(const QString& outputDir) {
+    ui->folderEdit->setText(outputDir);
 }

@@ -1,7 +1,7 @@
 #include <QtGui/QApplication>
 #include "mainwizard.h"
-#include "qtcontacts.h"
-#include <QInputDialog>
+#include <qtcontacts.h>
+#include <qinputdialog.h>
 
 QTM_USE_NAMESPACE
 
@@ -17,7 +17,8 @@ int main(int argc, char *argv[])
     if (managerDlg.exec() == QDialog::Accepted) {
         MainWizard w;
         w.setContactManager(new QContactManager(managerDlg.textValue(), QMap<QString, QString>(), &a));
-#ifdef SYMBIAN
+        w.setOutputDir(a.applicationDirPath() + "/output");
+#ifdef Q_OS_SYMBIAN
         w.showMaximized();
 #else
         w.show();

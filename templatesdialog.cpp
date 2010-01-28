@@ -38,6 +38,9 @@ void TemplatesDialog::on_newBtn_clicked()
 {
     TemplateEditDialog templateDlg(this);
     templateDlg.setWindowTitle("New Template");
+#ifdef Q_OS_SYMBIAN
+    templateDlg.setWindowState(Qt::WindowMaximized);
+#endif
     if (templateDlg.exec() == QDialog::Accepted) {
         templates()->insert(templateDlg.templateName(), templateDlg.templateBody());
         refreshTemplateList();
@@ -62,6 +65,9 @@ void TemplatesDialog::on_editBtn_clicked()
         templateDlg.setWindowTitle("Edit Template \"" + templateName + "\"");
         templateDlg.setTemplateName(templateName);
         templateDlg.setTemplateBody(templates()->value(templateName));
+#ifdef Q_OS_SYMBIAN
+        templateDlg.setWindowState(Qt::WindowMaximized);
+#endif
         if (templateDlg.exec() == QDialog::Accepted) {
             if (templateDlg.templateName().isEmpty())
                 throw "Template name must not be empty.";

@@ -1,11 +1,11 @@
 #ifndef MAINWIZARD_H
 #define MAINWIZARD_H
 
-#include <QWizard>
-#include <QList>
-#include <QMap>
-#include <QContact>
-#include <QContactManager>
+#include <qwizard.h>
+#include <qlist.h>
+#include <qmap.h>
+#include <qcontact.h>
+#include <qcontactmanager.h>
 
 QTM_USE_NAMESPACE
 Q_DECLARE_METATYPE(QContact)
@@ -23,6 +23,7 @@ public:
     void setContactManager(QContactManager *contactManager);
     void reloadTemplates();
     void saveTemplates();
+    void setOutputDir(const QString& outputDir);
 
 protected:
     void changeEvent(QEvent *e);
@@ -43,6 +44,8 @@ private slots:
     void refreshContactList();
     void refreshContactCombo();
     void processSaveFiles();
+    void processSendTextMessages();
+    void processDraftTextMessages();
     void reloadContacts();
 };
 
