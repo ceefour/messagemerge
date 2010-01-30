@@ -1,25 +1,26 @@
 #include "mainwizard.h"
 #include "ui_mainwizard.h"
-#include <QMessageBox>
-#include <QInputDialog>
 #include "templatesdialog.h"
 #include "templateeditdialog.h"
+#include "messagemerger.h"
+
+#include <QInputDialog>
 #include <QErrorMessage>
-#include "qtcontacts.h"
+#include <qtcontacts.h>
 #include <QDebug>
 #include <QDir>
-#include "messagemerger.h"
 #include <QSettings>
 
-// FIXME: Qt Mobility Messaging doesn't work for Symbian yet
+// FIXME: To get Qt Mobility Messaging app to compile,
+// manually copy qtmessaging.h, qmessageglobal.h, qmessagedatacomparator.h
+// to epoc32's include dir
 #if defined(Q_OS_SYMBIAN)
 // enable SMS on Symbian
-//#define SMS_ENABLED
+#define SMS_ENABLED
 #endif
 
 #ifdef SMS_ENABLED
-#include <qmessage.h>
-#include <qmessageserviceaction.h>
+#include <qtmessaging.h>
 #endif
 
 MainWizard::MainWizard(QWidget *parent) :
@@ -145,8 +146,18 @@ void MainWizard::reloadContacts() {
         ui->contactsPage->setSubTitle("Reading contact #" + QString(idx + 1) + " of " + QString(contactCount));
         update();
         QContactLocalId contactId = i.next();
-        QContact contact = m_contactManager->contact(contactId);
-        contacts.append(contact);
+        try {
+            QContact contact;
+            // TODO: How to catch this error? It still just terminates on Nokia E71! :(
+#ifdef Q_OS_SYMBIAN
+            QT_TRAP_THROWING(contact = m_contactManager->contact(contactId));
+#else
+            contact = m_contactManager->contact(contactId);
+#endif
+            contacts.append(contact);
+        } catch (std::exception ex) {
+            QErrorMessage(this).showMessage("Cannot load contact ID " + QString::number(contactId) + ": " + ex.what());
+        }
         idx++;
     }
     ui->contactsPage->setSubTitle("Select contacts to receive the message.");
@@ -209,10 +220,7 @@ void MainWizard::on_loadTemplateBtn_clicked()
         if (templates.contains(selectedName)) {
             ui->templateEdit->setPlainText(templates[selectedName]);
         } else {
-            QMessageBox msg(this);
-            msg.setIcon(QMessageBox::Critical);
-            msg.setText("Invalid template name: \"" + selectedName + "\".");
-            msg.exec();
+            QErrorMessage(this).showMessage("Invalid template name: \"" + selectedName + "\".");
         }
     }
 }
@@ -311,7 +319,7 @@ void MainWizard::processSaveFiles() {
         QString fileName = targetDir + "/" + contact.displayLabel() + ".txt";
         qDebug() << fileName << "Contact:" << contact.displayLabel() << "Message:" << message;
         QFile file(fileName);
-        if (file.open(QFile::WriteOnly)) {
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
             file.write(message.toUtf8());
             file.close();
         } else
