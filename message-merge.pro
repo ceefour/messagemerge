@@ -70,6 +70,11 @@ symbian: {
 #    TARGET.UID3 = 0x2002DA48   # real
 }
 
+# not available yet on Maemo
+#maemo5 | contains(QT_CONFIG, hildon): {
+#    MOBILITY += messaging
+#}
+
 linux-*: {
     #On Linux QMF is required to be installed and the QMF_INCLUDEDIR and QMF_LIBDIR environment variables
     #set to the messagingframework/src/libraries/qtopiamail and build/messagingframework/image/lib directories respectively.

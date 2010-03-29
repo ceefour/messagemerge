@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
         MainWizard w;
         w.setContactManager(new QContactManager(managerDlg.textValue(), QMap<QString, QString>(), &a));
         w.setOutputDir(a.applicationDirPath() + "/output");
-#ifdef Q_OS_SYMBIAN
+#if defined(Q_OS_SYMBIAN) || defined(Q_WS_HILDON) || defined(Q_WS_MAEMO_5)
         w.showMaximized();
 #else
         w.show();
