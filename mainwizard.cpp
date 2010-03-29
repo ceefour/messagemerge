@@ -45,6 +45,7 @@ MainWizard::MainWizard(QWidget *parent) :
     ui(new Ui::MainWizard)
 {
     ui->setupUi(this);
+    setButtonText(CancelButton, "E&xit");
 
     connect(this, SIGNAL(currentIdChanged(int)), SLOT(handle_currentIdChanged(int)));
 
