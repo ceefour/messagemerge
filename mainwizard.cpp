@@ -1,3 +1,20 @@
+/*
+Copyright 2010 Soluvas <http://www.soluvas.com>
+
+This software is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "mainwizard.h"
 #include "ui_mainwizard.h"
 #include "templatesdialog.h"
@@ -345,7 +362,7 @@ void MainWizard::processSendTextMessages() {
         QMessage message;
         message.setType(QMessage::Sms);
         QContactPhoneNumber phone = contact.detail<QContactPhoneNumber>();
-        message.setTo(QMessageAddress(phone.value(QContactPhoneNumber::SubTypeMobile), QMessageAddress::Phone));
+        message.setTo(QMessageAddress(phone.number(), QMessageAddress::Phone));
         QString body = merger.merge(templateBody(), contact);
         message.setBody(body);
         QMessageServiceAction service(this);
@@ -374,7 +391,7 @@ void MainWizard::processDraftTextMessages() {
 //        QMessage message;
 //        message.setType(QMessage::Sms);
 //        QContactPhoneNumber phone = contact.detail<QContactPhoneNumber>();
-//        message.setTo(QMessageAddress(phone.value(QContactPhoneNumber::SubTypeMobile), QMessageAddress::Phone));
+//        message.setTo(QMessageAddress(phone.number(), QMessageAddress::Phone));
 //        QString body = merger.merge(templateBody(), contact);
 //        message.setBody(body);
 //        message.setStatus();

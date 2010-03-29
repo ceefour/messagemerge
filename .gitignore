@@ -3,4 +3,4 @@ Makefile
 message-merge
 ui_*.h
 moc_*.cpp
-
+*.pro.user
