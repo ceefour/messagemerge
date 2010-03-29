@@ -119,14 +119,14 @@ void MainWizard::reloadContacts() {
     if (m_contactManager == NULL)
         return;
 
-    int contactCount = m_contactManager->contacts().length();
+    int contactCount = m_contactManager->contactIds().length();
     if (m_contactManager->managerName() == "memory" && contactCount == 0) {
         qDebug() << "Using manager 'memory' and empty, adding sample contacts data.";
         // sample contacts
         QtMobility::QContact contact;
         QtMobility::QContactName name;
-        name.setFirst("John");
-        name.setLast("Smith");
+        name.setFirstName("John");
+        name.setLastName("Smith");
         contact.saveDetail(&name);
         QContactPhoneNumber phone;
         phone.setNumber("+628123456789");
@@ -141,8 +141,8 @@ void MainWizard::reloadContacts() {
         m_contactManager->saveContact(&contact);
         contact = QtMobility::QContact();
         name = QtMobility::QContactName();
-        name.setFirst("Mary");
-        name.setLast("Swanson");
+        name.setFirstName("Mary");
+        name.setLastName("Swanson");
         contact.saveDetail(&name);
         phone = QContactPhoneNumber();
         phone.setNumber("+6285678912345");
@@ -158,7 +158,7 @@ void MainWizard::reloadContacts() {
     }
 
     qDebug() << "Reading contacts...";
-    QListIterator<QContactLocalId> i(m_contactManager->contacts());
+    QListIterator<QContactLocalId> i(m_contactManager->contactIds());
     int idx = 0;
     while (i.hasNext()) {
         ui->contactsPage->setSubTitle("Reading contact #" + QString(idx + 1) + " of " + QString(contactCount));

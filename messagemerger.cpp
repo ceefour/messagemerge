@@ -27,10 +27,10 @@ QString MessageMerger::merge(QString const &templateBody, QContact contact) cons
     QString message = templateBody;
     message = message.replace("[[name]]",
                               fullName(contactName), Qt::CaseSensitive);
-    QString firstName = contactName.first().isEmpty() ? "" : contactName.first();
+    QString firstName = contactName.firstName().isEmpty() ? "" : contactName.firstName();
     message = message.replace("[[firstname]]",
                               firstName, Qt::CaseSensitive);
-    QString lastName = contactName.last().isEmpty() ? "" : contactName.last();
+    QString lastName = contactName.lastName().isEmpty() ? "" : contactName.lastName();
     message = message.replace("[[lastname]]",
                               lastName, Qt::CaseSensitive);
     QContactEmailAddress email = contact.detail<QContactEmailAddress>();
@@ -44,11 +44,11 @@ QString MessageMerger::merge(QString const &templateBody, QContact contact) cons
 }
 
 QString MessageMerger::fullName(QContactName contactName) {
-    if (!contactName.first().isEmpty() && !contactName.last().isEmpty())
-        return contactName.first() + " " + contactName.last();
-    if (!contactName.first().isEmpty())
-        return contactName.first();
-    if (!contactName.last().isEmpty())
-        return contactName.last();
+    if (!contactName.firstName().isEmpty() && !contactName.lastName().isEmpty())
+        return contactName.firstName() + " " + contactName.lastName();
+    if (!contactName.firstName().isEmpty())
+        return contactName.firstName();
+    if (!contactName.lastName().isEmpty())
+        return contactName.lastName();
     return "";
 }
