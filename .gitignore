@@ -3,6 +3,7 @@ Makefile
 message-merge
 ui_*.h
 moc_*.cpp
+qrc_*.cpp
 *.pro.user
 Makefile*
 .make*

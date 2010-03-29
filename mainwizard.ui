@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>273</width>
-    <height>243</height>
+    <width>303</width>
+    <height>247</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,6 +18,10 @@
   </property>
   <property name="windowTitle">
    <string>MessageMerge</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="images.qrc">
+    <normaloff>:/logo</normaloff>:/logo</iconset>
   </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>
@@ -291,7 +295,9 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="images.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>previewContactCombo</sender>
