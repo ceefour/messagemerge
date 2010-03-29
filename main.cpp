@@ -19,6 +19,7 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #include "mainwizard.h"
 #include <qtcontacts.h>
 #include <qinputdialog.h>
+#include <qdir.h>
 
 QTM_USE_NAMESPACE
 
@@ -34,7 +35,7 @@ int main(int argc, char *argv[])
     if (managerDlg.exec() == QDialog::Accepted) {
         MainWizard w;
         w.setContactManager(new QContactManager(managerDlg.textValue(), QMap<QString, QString>(), &a));
-        w.setOutputDir(a.applicationDirPath() + "/output");
+        w.setOutputDir(QDir::homePath() + "/output");
 #if defined(Q_OS_SYMBIAN) || defined(Q_WS_HILDON) || defined(Q_WS_MAEMO_5)
         w.showMaximized();
 #else
