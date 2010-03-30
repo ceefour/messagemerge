@@ -28,16 +28,15 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDir>
 #include <QSettings>
 
-// FIXME: To get Qt Mobility Messaging app to compile,
-// manually copy qtmessaging.h, qmessageglobal.h, qmessagedatacomparator.h
-// to epoc32's include dir
-#if defined(Q_OS_SYMBIAN)
 // enable SMS on Symbian
+#if defined(Q_OS_SYMBIAN)
 #define SMS_ENABLED
 #endif
 
 #ifdef SMS_ENABLED
-#include <qtmessaging.h>
+#include <qmessage.h>
+#include <qmessageaddress.h>
+#include <qmessageservice.h>
 #endif
 
 MainWizard::MainWizard(QWidget *parent) :
@@ -366,10 +365,10 @@ void MainWizard::processSendTextMessages() {
         QMessage message;
         message.setType(QMessage::Sms);
         QContactPhoneNumber phone = contact.detail<QContactPhoneNumber>();
-        message.setTo(QMessageAddress(phone.number(), QMessageAddress::Phone));
+        message.setTo(QMessageAddress(QMessageAddress::Phone, phone.number()));
         QString body = merger.merge(templateBody(), contact);
         message.setBody(body);
-        QMessageServiceAction service(this);
+        QMessageService service(this);
         service.send(message);
         ui->progressBar->setValue(ui->progressBar->value() + 1);
         update();
