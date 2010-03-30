@@ -356,11 +356,11 @@ void MainWizard::processSaveFiles() {
 void MainWizard::processSendTextMessages() {
 #ifdef SMS_ENABLED
     MessageMerger merger;
-    ui->progressBar->setMaximum(selectedContacts().length());
+    ui->progressBar->setMaximum(checkedContacts().length());
     ui->progressBar->setValue(0);
     ui->processingLabel1->setText("Sending text messages");
     update();
-    foreach (const QContact &contact, selectedContacts()) {
+    foreach (const QContact &contact, checkedContacts()) {
         ui->processingLabel2->setText(contact.displayLabel());
         update();
         QMessage message;
@@ -385,11 +385,11 @@ void MainWizard::processDraftTextMessages() {
     // TODO: no API for save as draft
 //    QMessageStore *store = QMessageStore::instance();
 //    MessageMerger merger;
-//    ui->progressBar->setMaximum(selectedContacts().length());
+//    ui->progressBar->setMaximum(checkedContacts().length());
 //    ui->progressBar->setValue(0);
 //    ui->processingLabel1->setText("Saving text messages as draft");
 //    update();
-//    foreach (const QContact &contact, selectedContacts()) {
+//    foreach (const QContact &contact, checkedContacts()) {
 //        ui->processingLabel2->setText(contact.displayLabel());
 //        update();
 //        QMessage message;
