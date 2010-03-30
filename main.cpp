@@ -31,8 +31,8 @@ int main(int argc, char *argv[])
 
     QStringList managers = QContactManager::availableManagers();
     QInputDialog managerDlg;
-    managerDlg.setWindowTitle("Choose Contact Manager");
-    managerDlg.setLabelText("Select the Contact Manager that you want to use:");
+    managerDlg.setWindowTitle("Contact Manager Selection");
+    managerDlg.setLabelText("Select Phonebook:");
     managerDlg.setComboBoxItems(managers);
     if (managerDlg.exec() == QDialog::Accepted) {
         MainWizard w;
