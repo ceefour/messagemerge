@@ -20,12 +20,14 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #include <qtcontacts.h>
 #include <qinputdialog.h>
 #include <qdir.h>
+#include <qicon.h>
 
 QTM_USE_NAMESPACE
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    a.setWindowIcon(QIcon("art/messagemerge-logo.png"));
 
     QStringList managers = QContactManager::availableManagers();
     QInputDialog managerDlg;
