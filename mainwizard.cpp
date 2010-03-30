@@ -265,6 +265,8 @@ void MainWizard::refreshContactList() {
         QContact contact = contacts[i];
         QListWidgetItem *item = new QListWidgetItem(contact.displayLabel(),
                              ui->contactList);
+        item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
+        item->setCheckState(Qt::Unchecked);
         item->setData(Qt::UserRole, QVariant::fromValue(contact));
         qDebug() << i + 1 << ":" << contact.localId() << ":" << item->text();
     }
@@ -272,7 +274,7 @@ void MainWizard::refreshContactList() {
 
 void MainWizard::refreshContactCombo() {
     ui->previewContactCombo->clear();
-    QListIterator<QContact> i(selectedContacts());
+    QListIterator<QContact> i(checkedContacts());
     while (i.hasNext()) {
         QContact contact = i.next();
         ui->previewContactCombo->addItem(contact.displayLabel(),
@@ -280,16 +282,17 @@ void MainWizard::refreshContactCombo() {
     }
 }
 
-QList<QContact> MainWizard::selectedContacts() {
-    QList<QContact> selectedContacts;
-    QList<QListWidgetItem *> sel = ui->contactList->selectedItems();
-    QListIterator<QListWidgetItem *> i(sel);
+QList<QContact> MainWizard::checkedContacts() {
+    QList<QContact> checkedContacts;
+    QListIterator<QListWidgetItem *> i(ui->contactList->findItems("", Qt::MatchStartsWith));
     while (i.hasNext()) {
         QListWidgetItem *item = i.next();
-        QContact contact = item->data(Qt::UserRole).value<QContact>();
-        selectedContacts.append(contact);
+        if (item->checkState() == Qt::Checked) {
+            QContact contact = item->data(Qt::UserRole).value<QContact>();
+            checkedContacts.append(contact);
+        }
     }
-    return selectedContacts;
+    return checkedContacts;
 }
 
 void MainWizard::handle_currentIdChanged(int id)
@@ -325,12 +328,12 @@ void MainWizard::processSaveFiles() {
         }
     }
 
-    ui->progressBar->setMaximum(selectedContacts().length());
+    ui->progressBar->setMaximum(checkedContacts().length());
     ui->progressBar->setValue(0);
     ui->processingLabel1->setText("Processing contacts");
     update();
     MessageMerger merger;
-    foreach (const QContact& contact, selectedContacts()) {
+    foreach (const QContact& contact, checkedContacts()) {
         ui->processingLabel2->setText(contact.displayLabel());
         update();
         QString message = merger.merge(templateBody(), contact);

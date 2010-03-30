@@ -49,7 +49,7 @@ private:
     Ui::MainWizard *ui;
     QMap<QString, QString> templates;
     QList<QContact> contacts;
-    QList<QContact> selectedContacts();
+    QList<QContact> checkedContacts();
     QContactManager *m_contactManager;
 
 private slots:
