@@ -48,8 +48,10 @@ MainWizard::MainWizard(QWidget *parent) :
 
     connect(this, SIGNAL(currentIdChanged(int)), SLOT(handle_currentIdChanged(int)));
 
+    // FIXME: When Qt Mobility fixes this, enable send SMS and change save as draft
+    ui->sendTextRadio->setVisible(false);
 #ifdef SMS_ENABLED
-    ui->sendTextRadio->setEnabled(true);
+    ui->draftTextRadio->setEnabled(true);
 #endif
 
     QSettings settings("Soluvas", "MessageMerge", this);
@@ -156,26 +158,42 @@ void MainWizard::reloadContacts() {
         m_contactManager->saveContact(&contact);
     }
 
-    qDebug() << "Reading contacts...";
-    QListIterator<QContactLocalId> i(m_contactManager->contactIds());
+    qDebug() << "Reading contacts (filtered, sorted)...";
+
+    // Filter only contact types (i.e. exclude groups)
+    QContactDetailFilter typeFilter;
+    typeFilter.setDetailDefinitionName(QContactType::DefinitionName);
+    typeFilter.setValue(QLatin1String(QContactType::TypeContact));
+    typeFilter.setMatchFlags(QContactFilter::MatchExactly);
+
+    // Sort by First, then Last name
+    QContactSortOrder sortFirst;
+    sortFirst.setDetailDefinitionName(QContactName::DefinitionName, QContactName::FieldFirstName);
+    QContactSortOrder sortLast;
+    sortLast.setDetailDefinitionName(QContactName::DefinitionName, QContactName::FieldLastName);
+    QList<QContactSortOrder> sortOrder;
+    sortOrder.append(sortFirst);
+    sortOrder.append(sortLast);
+
+    QList<QContactLocalId> contactIds = m_contactManager->contactIds(sortOrder);
+    QListIterator<QContactLocalId> i(contactIds);
     int idx = 0;
     while (i.hasNext()) {
         ui->contactsPage->setSubTitle("Reading contact #" + QString(idx + 1) + " of " + QString(contactCount));
+        idx++;
         update();
         QContactLocalId contactId = i.next();
+        qDebug() << "Reading id=" << contactId;
         try {
             QContact contact;
             // TODO: How to catch this error? It still just terminates on Nokia E71! :(
-#ifdef Q_OS_SYMBIAN
-            QT_TRAP_THROWING(contact = m_contactManager->contact(contactId));
-#else
             contact = m_contactManager->contact(contactId);
-#endif
+            QContactNickname nick = contact.detail<QContactNickname>();
+            qDebug() << "Display=" << contact.displayLabel() << " merged=" << MessageMerger::fullName(contact.detail<QContactName>()) << " nick=" << nick.nickname();
             contacts.append(contact);
         } catch (std::exception ex) {
             QErrorMessage(this).showMessage("Cannot load contact ID " + QString::number(contactId) + ": " + ex.what());
         }
-        idx++;
     }
     ui->contactsPage->setSubTitle("Select contacts to receive the message.");
     qDebug() << "Contacts loaded.";
@@ -262,8 +280,7 @@ void MainWizard::refreshContactList() {
     ui->contactList->clear();
     for (int i = 0; i < contacts.length(); i++) {
         QContact contact = contacts[i];
-        QListWidgetItem *item = new QListWidgetItem(contact.displayLabel(),
-                             ui->contactList);
+        QListWidgetItem *item = new QListWidgetItem(contact.displayLabel(), ui->contactList);
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Unchecked);
         item->setData(Qt::UserRole, QVariant::fromValue(contact));
@@ -352,6 +369,12 @@ void MainWizard::processSaveFiles() {
     next();
 }
 
+/**
+  * As of Qt 4.6.2 and Qt Mobility 1.0.0-beta1
+  * the send() code only save to draft.
+  * Confirmed with Qt Mobility's own writemessage example.
+  * Tested with Nokia E71 v400.
+  */
 void MainWizard::processSendTextMessages() {
 #ifdef SMS_ENABLED
     MessageMerger merger;
@@ -379,32 +402,36 @@ void MainWizard::processSendTextMessages() {
 #endif
 }
 
+/**
+  * As of Qt 4.6.2 and Qt Mobility 1.0.0-beta1
+  * the send() code only save to draft.
+  * Confirmed with Qt Mobility's own writemessage example.
+  * Tested with Nokia E71 v400.
+  */
 void MainWizard::processDraftTextMessages() {
 #ifdef SMS_ENABLED
-    // TODO: no API for save as draft
-//    QMessageStore *store = QMessageStore::instance();
-//    MessageMerger merger;
-//    ui->progressBar->setMaximum(checkedContacts().length());
-//    ui->progressBar->setValue(0);
-//    ui->processingLabel1->setText("Saving text messages as draft");
-//    update();
-//    foreach (const QContact &contact, checkedContacts()) {
-//        ui->processingLabel2->setText(contact.displayLabel());
-//        update();
-//        QMessage message;
-//        message.setType(QMessage::Sms);
-//        QContactPhoneNumber phone = contact.detail<QContactPhoneNumber>();
-//        message.setTo(QMessageAddress(phone.number(), QMessageAddress::Phone));
-//        QString body = merger.merge(templateBody(), contact);
-//        message.setBody(body);
-//        message.setStatus();
-//        store->addMessage(m);
-//        ui->progressBar->setValue(ui->progressBar->value() + 1);
-//        update();
-//    }
-//    ui->processingLabel2->setText("");
-//    update();
-//    next();
+    MessageMerger merger;
+    ui->progressBar->setMaximum(checkedContacts().length());
+    ui->progressBar->setValue(0);
+    ui->processingLabel1->setText("Saving text messages as draft");
+    update();
+    foreach (const QContact &contact, checkedContacts()) {
+        ui->processingLabel2->setText(contact.displayLabel());
+        update();
+        QMessage message;
+        message.setType(QMessage::Sms);
+        QContactPhoneNumber phone = contact.detail<QContactPhoneNumber>();
+        message.setTo(QMessageAddress(QMessageAddress::Phone, phone.number()));
+        QString body = merger.merge(templateBody(), contact);
+        message.setBody(body);
+        QMessageService service(this);
+        service.send(message);
+        ui->progressBar->setValue(ui->progressBar->value() + 1);
+        update();
+    }
+    ui->processingLabel2->setText("");
+    update();
+    next();
 #endif
 }
 
