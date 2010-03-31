@@ -75,6 +75,9 @@ MainWizard::MainWizard(QWidget *parent) :
     }
 
     reloadTemplates();
+
+    ui->templateEdit->setFocus();
+    ui->templateEdit->textCursor().movePosition(QTextCursor::End);
 }
 
 void MainWizard::reloadTemplates() {
