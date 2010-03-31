@@ -1,0 +1,6 @@
+@echo off
+echo Running qmake...
+qmake -spec symbian-abld -r -Wall
+echo Generating proper messagemerge.loc...
+copy /y messagemerge.loc.manual messagemerge.loc
+echo Done.

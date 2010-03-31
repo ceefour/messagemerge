@@ -8,6 +8,7 @@ qrc_*.cpp
 Makefile*
 .make*
 *.SIS
+*.sis
 *.sisx
 *.pkg
 *.loc

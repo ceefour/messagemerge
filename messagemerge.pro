@@ -47,14 +47,14 @@ default_deployment.pkg_prerules = "; SIS header: name, uid, version" \
     "[0x1028315F],0,0,0,{\"S60ProductID\"}" \
     " "
 symbian: { 
+    ICON = "art/messagemerge-tiny.svg"
     MOBILITY += messaging
-    # FIXME: need simpler icon
-    #ICON = art/messagemerge-logo.svg
     TARGET.CAPABILITY = ReadUserData \ # contacts
         WriteUserData \ # contacts
         LocalServices \
         NetworkServices \ # SMS/MMS
         UserEnvironment
+    
     # ReadDeviceData \
     # WriteDeviceData \
     # AllFiles \
@@ -63,6 +63,8 @@ symbian: {
     TARGET.UID3 = 0xEa138c70 # test
 }
 
+# RSS_RULES += "caption = \"MessageMerge\";" \
+# "short_caption = \"MessageMerge\";"
 # not available yet on Maemo
 # maemo5 | contains(QT_CONFIG, hildon): {
 # MOBILITY += messaging
@@ -79,3 +81,4 @@ linux-*::
 # LIBS += -L /opt/qt-messagingframework/image/lib -lqtopiamail
 win32::
 RESOURCES += images.qrc
+OTHER_FILES += 
