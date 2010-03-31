@@ -80,5 +80,10 @@ linux-*::
 # LIBS += -L $$(QMF_LIBDIR) -lqtopiamail
 # LIBS += -L /opt/qt-messagingframework/image/lib -lqtopiamail
 win32::
-RESOURCES += images.qrc
-OTHER_FILES += 
+
+# Platform-specific window icon
+symbian: {
+    RESOURCES += images-symbian.qrc
+} else {
+    RESOURCES += images.qrc
+}

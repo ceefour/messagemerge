@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="logo.png">art/messagemerge-symbian.png</file>
+    </qresource>
+</RCC>

@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file alias="logo">art/messagemerge-logo.png</file>
+        <file alias="logo.png">art/messagemerge-logo.png</file>
     </qresource>
 </RCC>

@@ -27,7 +27,7 @@ QTM_USE_NAMESPACE
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    a.setWindowIcon(QIcon("art/messagemerge-logo.png"));
+    a.setWindowIcon(QIcon(":/logo.png"));
 
     QStringList managers = QContactManager::availableManagers();
     QInputDialog managerDlg;
