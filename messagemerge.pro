@@ -48,20 +48,21 @@ default_deployment.pkg_prerules = "; SIS header: name, uid, version" \
     " "
 symbian: { 
     MOBILITY += messaging
+    # FIXME: need simpler icon
+    #ICON = art/messagemerge-logo.svg
     TARGET.CAPABILITY = ReadUserData \ # contacts
         WriteUserData \ # contacts
         LocalServices \
         NetworkServices \ # SMS/MMS
         UserEnvironment
-    
     # ReadDeviceData \
     # WriteDeviceData \
     # AllFiles \
     # SwEvent
+    # TARGET.UID3 = 0x2002DA48   # real
     TARGET.UID3 = 0xEa138c70 # test
 }
 
-# TARGET.UID3 = 0x2002DA48   # real
 # not available yet on Maemo
 # maemo5 | contains(QT_CONFIG, hildon): {
 # MOBILITY += messaging
