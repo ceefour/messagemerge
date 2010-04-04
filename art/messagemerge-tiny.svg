@@ -3,14 +3,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="tiny" height="48" version="1.1" width="48">
 <defs>
 <linearGradient id="linearGradient3608">
-<stop offset="0" style="stop-color:#4d4d4d;stop-opacity:1;"/>
-<stop offset="1" style="stop-color:#4d4d4d;stop-opacity:0;"/>
+<stop offset="0" style="stop-color:#4d4d4d;stop-opacity:1"/>
+<stop offset="1" style="stop-color:#ffffff;stop-opacity:1"/>
 </linearGradient>
 <linearGradient gradientUnits="userSpaceOnUse" id="linearGradient3614" x1="30.471457" x2="18.097088" xlink:href="#linearGradient3608" y1="1029.9219" y2="1004.6782"/>
 </defs>
 <g transform="translate(0,-1004.3622)">
 <rect height="24.243662" style="fill:url(#linearGradient3614);fill-opacity:1;stroke:#000000;stroke-opacity:1" width="34.597725" x="0.79822475" y="1005.1782"/>
 <path d="m 1.3033006,1005.1781 16.9200554,12.8794 17.172593,-12.1218" style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"/>
-<text style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans" x="16.606602" y="1052.1097"/>
+<g style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans">
+<path d="m 25.246602,1029.3897 5.24,22.72 6,0 5.16,-22.72 0,22.72 6,0 0,-29.16 -9.04,0 -5.12,23.2 -5.28,-23.2 -8.96,0 0,29.16 6,0 0,-22.72" style="font-size:40px;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#ff0000;font-family:Nimbus Sans L;-inkscape-font-specification:Nimbus Sans L Bold"/>
+</g>
 </g>
 </svg>
