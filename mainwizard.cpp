@@ -51,6 +51,8 @@ MainWizard::MainWizard(QWidget *parent) :
     // FIXME: When Qt Mobility fixes this, enable send SMS and change save as draft
     ui->sendTextRadio->setVisible(false);
 #ifdef SMS_ENABLED
+    ui->sendTextRadio->setVisible(true);
+    ui->sendTextRadio->setEnabled(true);
     ui->draftTextRadio->setEnabled(true);
 #endif
 
