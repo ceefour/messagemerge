@@ -51,6 +51,8 @@ MainWizard::MainWizard(QWidget *parent) :
     // FIXME: When Qt Mobility fixes this, enable send SMS and change save as draft
     ui->sendTextRadio->setVisible(false);
 #ifdef SMS_ENABLED
+    ui->sendTextRadio->setVisible(true);
+    ui->sendTextRadio->setEnabled(true);
     ui->draftTextRadio->setEnabled(true);
 #endif
 
@@ -373,10 +375,11 @@ void MainWizard::processSaveFiles() {
 }
 
 /**
-  * As of Qt 4.6.2 and Qt Mobility 1.0.0-beta1
-  * the send() code only save to draft.
+  * As of Qt 4.6.2 and Qt Mobility 1.0.0
+  * the send() code only save to draft, *if* using Sms format.
   * Confirmed with Qt Mobility's own writemessage example.
   * Tested with Nokia E71 v400.
+  * A workaround is setting parent account id as MMS.
   */
 void MainWizard::processSendTextMessages() {
 #ifdef SMS_ENABLED
@@ -389,6 +392,7 @@ void MainWizard::processSendTextMessages() {
         ui->processingLabel2->setText(contact.displayLabel());
         update();
         QMessage message;
+        message.setParentAccountId(QMessageAccount::defaultAccount(QMessage::Mms)); // workaround for QtM < 1.0.1
         message.setType(QMessage::Sms);
         QContactPhoneNumber phone = contact.detail<QContactPhoneNumber>();
         message.setTo(QMessageAddress(QMessageAddress::Phone, phone.number()));
@@ -406,7 +410,7 @@ void MainWizard::processSendTextMessages() {
 }
 
 /**
-  * As of Qt 4.6.2 and Qt Mobility 1.0.0-beta1
+  * As of Qt 4.6.2 and Qt Mobility 1.0.0
   * the send() code only save to draft.
   * Confirmed with Qt Mobility's own writemessage example.
   * Tested with Nokia E71 v400.
