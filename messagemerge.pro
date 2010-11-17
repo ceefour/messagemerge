@@ -27,7 +27,7 @@ FORMS += templatesdialog.ui \
     templateeditdialog.ui \
     mainwizard.ui
 CONFIG += mobility
-MOBILITY += contacts
+MOBILITY += contacts messaging
 
 # See: http://developer.symbian.org/forum/showthread.php?t=3768
 default_deployment.pkg_prerules = "; SIS header: name, uid, version" \

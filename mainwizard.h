@@ -21,8 +21,8 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #include <qwizard.h>
 #include <qlist.h>
 #include <qmap.h>
-#include <qcontact.h>
-#include <qcontactmanager.h>
+#include <QtContacts/QContact>
+#include <QtContacts/QContactManager>
 
 QTM_USE_NAMESPACE
 Q_DECLARE_METATYPE(QContact)

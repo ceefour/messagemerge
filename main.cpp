@@ -21,6 +21,8 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #include <qinputdialog.h>
 #include <qdir.h>
 #include <qicon.h>
+#include <QErrorMessage>
+#include <QDebug>
 
 QTM_USE_NAMESPACE
 
@@ -29,14 +31,28 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     a.setWindowIcon(QIcon(":/logo.png"));
 
+    QString chosenManager = "";
     QStringList managers = QContactManager::availableManagers();
-    QInputDialog managerDlg;
-    managerDlg.setWindowTitle("Contact Manager Selection");
-    managerDlg.setLabelText("Select Phonebook:");
-    managerDlg.setComboBoxItems(managers);
-    if (managerDlg.exec() == QDialog::Accepted) {
+    foreach(QString manager, managers) {
+        qDebug() << "Found manager:" << manager;
+        if (manager == "invalid" || manager == "memory")
+            continue;
+        chosenManager = manager;
+        qDebug() << "Chosen manager:" << chosenManager;
+        break;
+    }
+    if (chosenManager.isEmpty()) {
+        QErrorMessage().showMessage("Cannot find valid Contact Manager that is not 'invalid' or 'memory'.");
+        return 1;
+    }
+
+//    QInputDialog managerDlg;
+//    managerDlg.setWindowTitle("Contact Manager Selection");
+//    managerDlg.setLabelText("Select Phonebook:");
+//    managerDlg.setComboBoxItems(managers);
+//    if (managerDlg.exec() == QDialog::Accepted) {
         MainWizard w;
-        w.setContactManager(new QContactManager(managerDlg.textValue(), QMap<QString, QString>(), &a));
+        w.setContactManager(new QContactManager(chosenManager, QMap<QString, QString>(), &a));
         w.setOutputDir(QDir::homePath() + "/output");
 #if defined(Q_OS_SYMBIAN) || defined(Q_WS_HILDON) || defined(Q_WS_MAEMO_5)
         w.showMaximized();
@@ -44,6 +60,6 @@ int main(int argc, char *argv[])
         w.show();
 #endif
         return a.exec();
-    } else
-        return 1;
+//    } else
+//        return 1;
 }

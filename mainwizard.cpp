@@ -31,12 +31,15 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 // enable SMS on Symbian
 #if defined(Q_OS_SYMBIAN)
 #define SMS_ENABLED
+#else
+#define SMS_ENABLED
 #endif
 
 #ifdef SMS_ENABLED
-#include <qmessage.h>
-#include <qmessageaddress.h>
-#include <qmessageservice.h>
+#include <QtMessaging/QMessage>
+#include <QtMessaging/QMessageAddress>
+#include <QtMessaging/QMessageService>
+#include <QtMessaging/QMessageAccount>
 #endif
 
 MainWizard::MainWizard(QWidget *parent) :
@@ -117,7 +120,8 @@ MainWizard::~MainWizard()
 
 void MainWizard::setContactManager(QContactManager *contactManager) {
     m_contactManager = contactManager;
-    qDebug() << "Using manager:" << m_contactManager->managerName();
+    qDebug() << "MainWizard::setContactManager:" << m_contactManager->managerName()
+            << m_contactManager->managerVersion() << m_contactManager->managerUri();
 }
 
 void MainWizard::reloadContacts() {
