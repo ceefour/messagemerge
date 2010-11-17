@@ -4,7 +4,7 @@ message-merge
 ui_*.h
 moc_*.cpp
 qrc_*.cpp
-*.pro.user
+*.pro.user*
 Makefile*
 .make*
 *.SIS
