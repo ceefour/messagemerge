@@ -36,10 +36,14 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #ifdef SMS_ENABLED
-#include <QtMessaging/QMessage>
-#include <QtMessaging/QMessageAddress>
-#include <QtMessaging/QMessageService>
-#include <QtMessaging/QMessageAccount>
+#include <QMessage>
+#include <QMessageAddress>
+#include <QMessageService>
+#include <QMessageAccount>
+//#include <QtMessaging/qmessage.h>
+//#include <QtMessaging/qmessageaddress.h>
+//#include <QtMessaging/qmessageservice.h>
+//#include <QtMessaging/qmessageaccount.h>
 #endif
 
 MainWizard::MainWizard(QWidget *parent) :
@@ -396,7 +400,6 @@ void MainWizard::processSendTextMessages() {
         ui->processingLabel2->setText(contact.displayLabel());
         update();
         QMessage message;
-        message.setParentAccountId(QMessageAccount::defaultAccount(QMessage::Mms)); // workaround for QtM < 1.0.1
         message.setType(QMessage::Sms);
         QContactPhoneNumber phone = contact.detail<QContactPhoneNumber>();
         message.setTo(QMessageAddress(QMessageAddress::Phone, phone.number()));

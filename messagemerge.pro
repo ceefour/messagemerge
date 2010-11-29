@@ -29,27 +29,37 @@ FORMS += templatesdialog.ui \
 CONFIG += mobility
 MOBILITY += contacts messaging
 
+VERSION = 1.1.0
+
+packageheader = "$${LITERAL_HASH}{\"MessageMerge\"}, (0x200373B6), 1, 1, 0, TYPE=SA"
+vendorinfo = \
+"%{\"Soluvas\"}" \
+":\"Soluvas\""
+
+my_deployment.pkg_prerules = packageheader vendorinfo
+DEPLOYMENT += my_deployment
 # See: http://developer.symbian.org/forum/showthread.php?t=3768
-default_deployment.pkg_prerules = "; SIS header: name, uid, version" \
-    $$LITERAL_HASH"{\"MessageMerge\"},(0xEa138c70),1,0,0" \ # test
-# $$LITERAL_HASH"{\"MessageMerge\"},(0x2002DA48),1,0,0" \    # real
-    " " \
-    "; Localised Vendor name" \
-    "%{\"Soluvas\"}" \
-    " " \
-    "; Unique Vendor name" \
-    ":\"Soluvas\"" \
-    " " \
-    "; Default HW/platform dependencies" \
-    "[0x101F7961],0,0,0,{\"S60ProductID\"}" \
-    "[0x102032BE],0,0,0,{\"S60ProductID\"}" \
-    "[0x102752AE],0,0,0,{\"S60ProductID\"}" \
-    "[0x1028315F],0,0,0,{\"S60ProductID\"}" \
-    " "
+#default_deployment.pkg_prerules = "; SIS header: name, uid, version" \
+#    $$LITERAL_HASH"{\"MessageMerge\"},(0xEa138c70),1,0,0" \ # test
+#    $$LITERAL_HASH"{\"MessageMerge\"},(0x200373B6),1,1,0" \    # real
+#    " " \
+#    "; Localised Vendor name" \
+#    "%{\"Soluvas\"}" \
+#    " " \
+#    "; Unique Vendor name" \
+#    ":\"Soluvas\"" \
+#    " " \
+#     "; Default HW/platform dependencies" \
+#    "[0x101F7961],0,0,0,{\"S60ProductID\"}" \
+#    "[0x102032BE],0,0,0,{\"S60ProductID\"}" \
+#    "[0x102752AE],0,0,0,{\"S60ProductID\"}" \
+#    "[0x1028315F],0,0,0,{\"S60ProductID\"}" \
+#    " "
 symbian: { 
     ICON = "art/messagemerge-tiny.svg"
     MOBILITY += messaging
-    TARGET.CAPABILITY = ReadUserData \ # contacts
+    TARGET = "MessageMerge"
+    TARGET.CAPABILITY += ReadUserData \ # contacts
         WriteUserData \ # contacts
         LocalServices \
         NetworkServices \ # SMS/MMS
@@ -59,8 +69,8 @@ symbian: {
     # WriteDeviceData \
     # AllFiles \
     # SwEvent
-    # TARGET.UID3 = 0x2002DA48   # real
-    TARGET.UID3 = 0xEa138c70 # test
+    TARGET.UID3 = 0x200373B6   # real, no. 1 from Ovi Publish
+    #TARGET.UID3 = 0xEa138c70 # test
 }
 
 # RSS_RULES += "caption = \"MessageMerge\";" \

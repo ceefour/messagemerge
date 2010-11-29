@@ -19,7 +19,7 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #define MESSAGEMERGER_H
 
 #include <QString>
-#include <QtContacts/QContact>
+#include <qtcontacts.h>
 
 QTM_USE_NAMESPACE
 
