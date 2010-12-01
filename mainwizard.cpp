@@ -32,7 +32,6 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #if defined(Q_OS_SYMBIAN)
 #define SMS_ENABLED
 #else
-#define SMS_ENABLED
 #endif
 
 #ifdef SMS_ENABLED
@@ -40,10 +39,6 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageAddress>
 #include <QMessageService>
 #include <QMessageAccount>
-//#include <QtMessaging/qmessage.h>
-//#include <QtMessaging/qmessageaddress.h>
-//#include <QtMessaging/qmessageservice.h>
-//#include <QtMessaging/qmessageaccount.h>
 #endif
 
 MainWizard::MainWizard(QWidget *parent) :
