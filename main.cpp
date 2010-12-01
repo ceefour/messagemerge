@@ -16,12 +16,14 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QtGui/QApplication>
-#include "mainwizard.h"
+//#include "mainwizard.h"
+#include "mainwindow.h"
 #include <qtcontacts.h>
 #include <qinputdialog.h>
 #include <qdir.h>
 #include <qicon.h>
 #include <QErrorMessage>
+#include <QMessageBox>
 #include <QDebug>
 
 QTM_USE_NAMESPACE
@@ -42,8 +44,12 @@ int main(int argc, char *argv[])
         break;
     }
     if (chosenManager.isEmpty()) {
-        QErrorMessage().showMessage("Cannot find valid Contact Manager that is not 'invalid' or 'memory'.");
-        return 1;
+        qWarning() << "Cannot find valid Contact Manager that is not 'invalid' or 'memory'.";
+//        QErrorMessage errMsg;
+//        errMsg.showMessage("Cannot find valid Contact Manager that is not 'invalid' or 'memory'.");
+//        errMsg.exec();
+//        return 1;
+        chosenManager = "memory";
     }
 
 //    QInputDialog managerDlg;
@@ -51,15 +57,24 @@ int main(int argc, char *argv[])
 //    managerDlg.setLabelText("Select Phonebook:");
 //    managerDlg.setComboBoxItems(managers);
 //    if (managerDlg.exec() == QDialog::Accepted) {
-        MainWizard w;
-        w.setContactManager(new QContactManager(chosenManager, QMap<QString, QString>(), &a));
-        w.setOutputDir(QDir::homePath() + "/output");
+
+    MainWindow w;
 #if defined(Q_OS_SYMBIAN) || defined(Q_WS_HILDON) || defined(Q_WS_MAEMO_5)
-        w.showMaximized();
+    w.showMaximized();
 #else
-        w.show();
+    w.show();
 #endif
-        return a.exec();
+
+//        MainWizard w;
+//        w.setContactManager(new QContactManager(chosenManager, QMap<QString, QString>(), &a));
+//        w.setOutputDir(QDir::homePath() + "/output");
+//#if defined(Q_OS_SYMBIAN) || defined(Q_WS_HILDON) || defined(Q_WS_MAEMO_5)
+//        w.showMaximized();
+//#else
+//        w.show();
+//#endif
+
+    return a.exec();
 //    } else
 //        return 1;
 }

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>240</width>
+    <height>240</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>MessageMerge</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="images-symbian.qrc">
+    <normaloff>:/logo.png</normaloff>:/logo.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Message:</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPlainTextEdit" name="templateEdit">
+      <property name="plainText">
+       <string>Hi [[firstname]]</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>240</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuExit">
+    <property name="title">
+     <string>E&amp;xit</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuSelect_Recipients">
+    <property name="title">
+     <string>Select Recipients...</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuTemplate">
+    <property name="title">
+     <string>Template</string>
+    </property>
+    <addaction name="actionLoadTemplate"/>
+    <addaction name="actionSaveTemplate"/>
+    <addaction name="separator"/>
+    <addaction name="actionEditTemplates"/>
+   </widget>
+   <addaction name="menuSelect_Recipients"/>
+   <addaction name="menuTemplate"/>
+   <addaction name="menuExit"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionSelect_Recipients">
+   <property name="text">
+    <string>Select Recipients...</string>
+   </property>
+  </action>
+  <action name="actionLoadTemplate">
+   <property name="text">
+    <string>Load...</string>
+   </property>
+  </action>
+  <action name="actionSaveTemplate">
+   <property name="text">
+    <string>Save...</string>
+   </property>
+  </action>
+  <action name="actionEditTemplates">
+   <property name="text">
+    <string>Edit...</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="images-symbian.qrc"/>
+ </resources>
+ <connections/>
+</ui>
