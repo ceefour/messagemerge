@@ -12,22 +12,26 @@
 # -------------------------------------------------
 # Project created by QtCreator 2010-01-10T18:43:06
 # -------------------------------------------------
+QT += core gui
 TARGET = messagemerge
 TEMPLATE = app
 SOURCES += main.cpp \
     templatesdialog.cpp \
     templateeditdialog.cpp \
     mainwizard.cpp \
-    messagemerger.cpp
+    messagemerger.cpp \
+    mainwindow.cpp
 HEADERS += templatesdialog.h \
     templateeditdialog.h \
     mainwizard.h \
-    messagemerger.h
+    messagemerger.h \
+    mainwindow.h
 FORMS += templatesdialog.ui \
     templateeditdialog.ui \
-    mainwizard.ui
+    mainwizard.ui \
+    mainwindow.ui
 CONFIG += mobility
-MOBILITY += contacts messaging
+MOBILITY += contacts
 
 VERSION = 1.1.0
 
@@ -60,10 +64,10 @@ symbian: {
     MOBILITY += messaging
     TARGET = "MessageMerge"
     TARGET.CAPABILITY += ReadUserData \ # contacts
-        WriteUserData \ # contacts
-        LocalServices \
-        NetworkServices \ # SMS/MMS
-        UserEnvironment
+        WriteUserData \ # save as file
+#        LocalServices \
+        NetworkServices # SMS/MMS
+#        UserEnvironment
     
     # ReadDeviceData \
     # WriteDeviceData \
