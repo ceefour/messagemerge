@@ -1,5 +1,5 @@
 MessageMerge
-By: Hendy Irawan <hendy@soluvas.com>
+By: Soluvas <http://www.soluvas.com/>
 
 MessageMerge allows the user to send personalized messages to chosen contacts from the Phone Book, based on a customized message template.
 
