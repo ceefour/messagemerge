@@ -13,7 +13,7 @@ class ContactListModel : public QAbstractListModel
     //QContactManager *mgr;
     QStringList names;
     QList<QContactLocalId> contactIds;
-    QList<QContactLocalId> checkedIds;
+    QList<QContactLocalId> m_checkedIds;
 public:
     explicit ContactListModel(QObject *parent);
     int rowCount(const QModelIndex &parent) const;
@@ -22,6 +22,7 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
     void addItem(const QString &text, QContactLocalId data);
+    QList<QContactLocalId> checkedIds();
 
 signals:
 

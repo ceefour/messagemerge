@@ -32,11 +32,17 @@ private:
 
     Ui::MainWindow *ui;
 
+    void initTemplates();
     void reloadTemplates();
     void saveTemplates();
     void reloadContacts();
 
 private slots:
+    void on_actionHelp_triggered();
+    void on_actionAbout_triggered();
+    void on_actionSend_triggered();
+    void on_actionSaveTemplate_triggered();
+    void on_actionEditTemplates_triggered();
     void on_actionRecipients_triggered();
     void on_actionLoadTemplate_triggered();
 };

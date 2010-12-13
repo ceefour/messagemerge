@@ -8,21 +8,51 @@
 #include <QProgressDialog>
 #include <stdexcept>
 #include "messagemerger.h"
+#include "templateeditdialog.h"
+#include "templatesdialog.h"
+#include "sendwizard.h"
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent), contactManager(),
+    QMainWindow(parent), contactManager(), contactModel(),
     ui(new Ui::MainWindow)
 {
     //contactManager = 0;
     //contacts = 0;
     ui->setupUi(this);
 
+    initTemplates();
     reloadTemplates();
+
+    ui->templateEdit->setFocus();
+    ui->templateEdit->textCursor().movePosition(QTextCursor::End);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::initTemplates() {
+    QSettings settings("Soluvas", "MessageMerge", this);
+
+    if (!settings.contains("templates/size")) {
+        qDebug() << "Generating sample templates.";
+        // sample templates
+        settings.beginWriteArray("templates");
+        settings.setArrayIndex(0);
+        settings.setValue("name", "Weather news");
+        settings.setValue("body", "Hello [[firstname]],\n\n"
+                          "I'd like to let you know that weather in [[city]] is great!\n\n"
+                          "Best regards,\n"
+                          "Weather Control");
+        settings.setArrayIndex(1);
+        settings.setValue("name", "New e-mail notification");
+        settings.setValue("body", "Hi [[firstname]],\n\n"
+                          "You have a new e-mail address: [[email]]\n\n"
+                          "Good luck!");
+        settings.endArray();
+    }
 }
 
 void MainWindow::reloadTemplates() {
@@ -105,13 +135,13 @@ void MainWindow::reloadContacts() {
 
         //update();
         QContactLocalId contactId = it.next();
-        qDebug() << "Reading id=" << contactId;
+        //qDebug() << "Reading id=" << contactId;
         try {
             QContact contact;
             // TODO: How to catch this error? It still just terminates on Nokia E71! :(
             contact = contactManager->contact(contactId);
             //QContactNickname nick = contact.detail<QContactNickname>();
-            qDebug() << "Display=" << contact.displayLabel() << " merged=" << MessageMerger::fullName(contact.detail<QContactName>());// << " nick=" << nick.nickname();
+            //qDebug() << "Display=" << contact.displayLabel() << " merged=" << MessageMerger::fullName(contact.detail<QContactName>());// << " nick=" << nick.nickname();
             //contacts.append(contact);
             /*
             QStandardItem *item = new QStandardItem(MessageMerger::fullName(contact.detail<QContactName>()));
@@ -159,4 +189,71 @@ void MainWindow::setContactManager(const QString &name) {
     qDebug() << "Loading sample contacts if needed";
     util.loadSampleIfNeeded(contactManager);
     //contactModel = new ContactListModel(this, contactManager);
+}
+
+void MainWindow::on_actionEditTemplates_triggered()
+{
+    TemplatesDialog templatesDlg(this, &templates);
+#ifdef Q_OS_SYMBIAN
+    templatesDlg.setWindowState(Qt::WindowMaximized);
+#endif
+    if (templatesDlg.exec() == QDialog::Accepted) {
+        saveTemplates();
+    }
+}
+
+void MainWindow::on_actionSaveTemplate_triggered()
+{
+    TemplateEditDialog templateDlg(this);
+    templateDlg.setWindowTitle("Save Template As");
+    templateDlg.setTemplateBody(ui->templateEdit->toPlainText());
+#ifdef Q_OS_SYMBIAN
+    templateDlg.setWindowState(Qt::WindowMaximized);
+#endif
+    if (templateDlg.exec() == QDialog::Accepted) {
+        QString templateName = templateDlg.templateName();
+        if (!templateName.isEmpty()) {
+            templates.insert(templateName, templateDlg.templateBody());
+            saveTemplates();
+        } else {
+            QErrorMessage(this).showMessage("Template name must not be empty.");
+        }
+    }
+}
+
+void MainWindow::on_actionSend_triggered()
+{
+    if (contactModel == 0 || contactModel->checkedIds().count() <= 0) {
+        QMessageBox(this).information(this, "Please Select Recipients",
+                                      "Please select one or more recipients.");
+//        QErrorMessage(this).showMessage("Please select one or more recipients.");
+        return;
+    }
+
+    QList<QContact> checkedContacts;
+    for (int i = 0; i < contactModel->checkedIds().count(); i++) {
+        QContact contact = contactManager->contact(contactModel->checkedIds().at(i));
+        checkedContacts.append(contact);
+    }
+
+    SendWizard w(this);
+    w.setCheckedContacts(checkedContacts);
+    w.setTemplateBody(ui->templateEdit->toPlainText());
+#ifdef Q_OS_SYMBIAN
+    w.setWindowState(Qt::WindowMaximized);
+#endif
+    w.exec();
+}
+
+void MainWindow::on_actionAbout_triggered()
+{
+    QMessageBox::about(this, "About MessageMerge",
+                       QString("MessageMerge\n(C) 2010 Soluvas\n") +
+                       "http://www.soluvas.com");
+}
+
+void MainWindow::on_actionHelp_triggered()
+{
+    QMessageBox::information(this, "Help", QString("Available template variables:\n") +
+                             "[[name]]\n[[firstname]]\n[[lastname]]\n[[email]]\n[[city]]");
 }

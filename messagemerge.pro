@@ -18,30 +18,24 @@ TEMPLATE = app
 SOURCES += main.cpp \
     templatesdialog.cpp \
     templateeditdialog.cpp \
-    mainwizard.cpp \
     messagemerger.cpp \
     mainwindow.cpp \
     recipientsdlg.cpp \
     contactlistmodel.cpp \
     messagemergeutils.cpp \
-    previewdlg.cpp \
     sendwizard.cpp
 HEADERS += templatesdialog.h \
     templateeditdialog.h \
-    mainwizard.h \
     messagemerger.h \
     mainwindow.h \
     recipientsdlg.h \
     contactlistmodel.h \
     messagemergeutils.h \
-    previewdlg.h \
     sendwizard.h
 FORMS += templatesdialog.ui \
     templateeditdialog.ui \
-    mainwizard.ui \
     mainwindow.ui \
     recipientsdlg.ui \
-    previewdlg.ui \
     sendwizard.ui
 CONFIG += mobility
 MOBILITY += contacts

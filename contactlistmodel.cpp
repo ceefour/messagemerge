@@ -5,7 +5,7 @@
 #include <messagemergeutils.h>
 
 ContactListModel::ContactListModel(QObject *parent) :
-    QAbstractListModel(parent), contactIds(), checkedIds()
+    QAbstractListModel(parent), contactIds(), m_checkedIds()
 {
     MessageMergeUtils util;
     //this->mgr = mgr;
@@ -28,7 +28,7 @@ QVariant ContactListModel::data(const QModelIndex &index, int role) const {
             return names.at(index.row());
         }
     case Qt::CheckStateRole:
-        return checkedIds.contains(contactId) ? Qt::Checked : Qt::Unchecked;
+        return m_checkedIds.contains(contactId) ? Qt::Checked : Qt::Unchecked;
     default:
         return QVariant();
     }
@@ -50,9 +50,9 @@ bool ContactListModel::setData(const QModelIndex &index, const QVariant &value, 
     if (index.row() >= contactIds.length()) return false;
     if (role == Qt::CheckStateRole) {
         QContactLocalId contactId = contactIds.at(index.row());
-        checkedIds.removeAll(contactId);
+        m_checkedIds.removeAll(contactId);
         if (value == Qt::Checked)
-            checkedIds.append(contactId);
+            m_checkedIds.append(contactId);
         dataChanged(index, index);
         return true;
     }
@@ -64,3 +64,6 @@ void ContactListModel::addItem(const QString &text, QContactLocalId data) {
     contactIds.append(data);
 }
 
+QList<QContactLocalId> ContactListModel::checkedIds() {
+    return m_checkedIds;
+}

@@ -8,6 +8,7 @@ RecipientsDlg::RecipientsDlg(QWidget *parent, QAbstractItemModel *model) :
 {
     ui->setupUi(this);
     ui->contactList->setModel(model);
+    ui->contactList->setFocus();
 }
 
 RecipientsDlg::~RecipientsDlg()
