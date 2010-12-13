@@ -20,6 +20,7 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #include "templatesdialog.h"
 #include "templateeditdialog.h"
 #include "messagemerger.h"
+#include <stdexcept>
 
 #include <QInputDialog>
 #include <QErrorMessage>
@@ -128,62 +129,12 @@ void MainWizard::reloadContacts() {
     if (m_contactManager == NULL)
         return;
 
-    int contactCount = m_contactManager->contactIds().length();
-    if (m_contactManager->managerName() == "memory" && contactCount == 0) {
-        qDebug() << "Using manager 'memory' and empty, adding sample contacts data.";
-        // sample contacts
-        QtMobility::QContact contact;
-        QtMobility::QContactName name;
-        name.setFirstName("John");
-        name.setLastName("Smith");
-        contact.saveDetail(&name);
-        QContactPhoneNumber phone;
-        phone.setNumber("+628123456789");
-        phone.setSubTypes(QContactPhoneNumber::SubTypeMobile);
-        contact.saveDetail(&phone);
-        QContactEmailAddress email;
-        email.setEmailAddress("john.smith@example.com");
-        contact.saveDetail(&email);
-        QContactAddress address;
-        address.setLocality("Medan");
-        contact.saveDetail(&address);
-        m_contactManager->saveContact(&contact);
-        contact = QtMobility::QContact();
-        name = QtMobility::QContactName();
-        name.setFirstName("Mary");
-        name.setLastName("Swanson");
-        contact.saveDetail(&name);
-        phone = QContactPhoneNumber();
-        phone.setNumber("+6285678912345");
-        phone.setSubTypes(QContactPhoneNumber::SubTypeMobile);
-        contact.saveDetail(&phone);
-        email = QContactEmailAddress();
-        email.setEmailAddress("mary.swanson@example.com");
-        contact.saveDetail(&email);
-        address = QContactAddress();
-        address.setLocality("Bandung");
-        contact.saveDetail(&address);
-        m_contactManager->saveContact(&contact);
-    }
+    util.loadSampleIfNeeded(m_contactManager);
 
     qDebug() << "Reading contacts (filtered, sorted)...";
 
-    // Filter only contact types (i.e. exclude groups)
-    QContactDetailFilter typeFilter;
-    typeFilter.setDetailDefinitionName(QContactType::DefinitionName);
-    typeFilter.setValue(QLatin1String(QContactType::TypeContact));
-    typeFilter.setMatchFlags(QContactFilter::MatchExactly);
-
-    // Sort by First, then Last name
-    QContactSortOrder sortFirst;
-    sortFirst.setDetailDefinitionName(QContactName::DefinitionName, QContactName::FieldFirstName);
-    QContactSortOrder sortLast;
-    sortLast.setDetailDefinitionName(QContactName::DefinitionName, QContactName::FieldLastName);
-    QList<QContactSortOrder> sortOrder;
-    sortOrder.append(sortFirst);
-    sortOrder.append(sortLast);
-
-    QList<QContactLocalId> contactIds = m_contactManager->contactIds(sortOrder);
+    int contactCount = m_contactManager->contactIds().length();
+    QList<QContactLocalId> contactIds = m_contactManager->contactIds(util.contactFilter(), util.contactSortOrder());
     QListIterator<QContactLocalId> i(contactIds);
     int idx = 0;
     while (i.hasNext()) {

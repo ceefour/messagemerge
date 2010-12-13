@@ -22,6 +22,7 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #include <qlist.h>
 #include <qmap.h>
 #include <qtcontacts.h>
+#include "messagemergeutils.h"
 
 QTM_USE_NAMESPACE
 Q_DECLARE_METATYPE(QContact)
@@ -50,6 +51,7 @@ private:
     QList<QContact> contacts;
     QList<QContact> checkedContacts();
     QContactManager *m_contactManager;
+    MessageMergeUtils util;
 
 private slots:
     void handle_currentIdChanged(int id);

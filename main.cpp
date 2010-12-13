@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
 //    if (managerDlg.exec() == QDialog::Accepted) {
 
     MainWindow w;
+    w.setContactManager(chosenManager);
 #if defined(Q_OS_SYMBIAN) || defined(Q_WS_HILDON) || defined(Q_WS_MAEMO_5)
     w.showMaximized();
 #else
